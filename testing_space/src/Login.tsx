@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { gsap } from 'gsap';
 import './Login.css';
 import logo from '/logo.png';
 
@@ -9,6 +10,8 @@ const Login: React.FC = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const navigate = useNavigate();
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const loginContentRef = useRef<HTMLDivElement>(null);
 
   const validateForm = () => {
     let isValid = true;
@@ -43,12 +46,27 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleRegisterClick = () => {
-    navigate('/register');
-  };
-
-  const handleHomeClick = () => {
-    navigate('/homepage');
+  const handleRegisterClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (overlayRef.current && loginContentRef.current) {
+      // Create a unique transition effect
+      const tl = gsap.timeline();
+      
+      tl.to(overlayRef.current, {
+        opacity: 1,
+        duration: 0.5,
+        ease: 'power2.inOut'
+      }).to(loginContentRef.current, {
+        scale: 0.8,
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          navigate('/register');
+        }
+      });
+    }
   };
 
   return (
@@ -61,37 +79,36 @@ const Login: React.FC = () => {
         <div className="decorative-circle decorative-circle-2"></div>
       </div>
       <div className="login-right">
-        <form className="login-form" onSubmit={handleLogin}>
-          <h2>Đăng Nhập</h2>
-          <div className="form-group">
-            <label>Email</label>
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Nhập email của bạn"
-            />
-            {emailError && <div style={{color: 'red', fontSize: '0.8em', marginTop: '5px'}}>{emailError}</div>}
-          </div>
-          <div className="form-group">
-            <label>Mật khẩu</label>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Nhập mật khẩu"
-            />
-            {passwordError && <div style={{color: 'red', fontSize: '0.8em', marginTop: '5px'}}>{passwordError}</div>}
-          </div>
-          <button type="submit" className="login-btn">Đăng nhập</button>
-          <div className="login-footer">
-            Chưa có tài khoản? <a href="#" onClick={handleRegisterClick}>Đăng ký ngay</a>
-          </div>
-          <div className="social-login">
-            <button type="button" className="social-login-btn" onClick={handleHomeClick}>Về Trang Chủ</button>
-          </div>
-        </form>
+        <div ref={loginContentRef} className="login-content">
+          <form onSubmit={handleLogin}>
+            <div className="form-group">
+              <label>Email</label>
+              <input 
+                type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Nhập email của bạn"
+              />
+              {emailError && <div className="error-message">{emailError}</div>}
+            </div>
+            <div className="form-group">
+              <label>Mật khẩu</label>
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Nhập mật khẩu"
+              />
+              {passwordError && <div className="error-message">{passwordError}</div>}
+            </div>
+            <button type="submit" className="login-btn">Đăng nhập</button>
+            <div className="login-footer">
+              Chưa có tài khoản? <a href="#" onClick={handleRegisterClick}>Đăng ký ngay</a>
+            </div>
+          </form>
+        </div>
       </div>
+      <div ref={overlayRef} className="transition-overlay"></div>
     </div>
   );
 };

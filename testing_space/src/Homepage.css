@@ -1,6 +1,12 @@
-.homepage {
+body {
+  margin: 0;
   font-family: 'Arial', sans-serif;
-  max-width: 1200px;
+  background-color: #f4f4f4;
+  overflow-x: hidden;
+}
+
+.homepage {
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -8,93 +14,218 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 0;
-  border-bottom: 1px solid #e0e0e0;
+  padding: 15px 50px;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.homepage-header .logo {
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo-image {
+  width: 60px;
+  height: 60px;
+  margin-right: 15px;
+}
+
+.logo-text {
   font-size: 24px;
   font-weight: bold;
   color: #D32F2F;
 }
 
-.homepage-header nav {
+.header-nav {
   display: flex;
-  gap: 20px;
+  gap: 25px;
 }
 
-.homepage-header nav button,
-.homepage-header .auth-buttons button {
+.header-nav button,
+.auth-buttons button {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 16px;
   color: #333;
   transition: color 0.3s ease;
+  position: relative;
 }
 
-.homepage-header nav button:hover,
-.homepage-header .auth-buttons button:hover {
-  color: #D32F2F;
+.header-nav button::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #D32F2F;
+  transition: width 0.3s ease;
 }
 
-.homepage-header .auth-buttons {
+.header-nav button:hover::after {
+  width: 100%;
+}
+
+.auth-buttons {
   display: flex;
   gap: 15px;
 }
 
-.homepage-header .auth-buttons button {
+.auth-buttons button {
   padding: 8px 16px;
   border: 1px solid #D32F2F;
   border-radius: 4px;
   color: #D32F2F;
+  transition: all 0.3s ease;
 }
 
-.homepage-header .auth-buttons button:last-child {
+.auth-buttons button:last-child {
+  background-color: #D32F2F;
+  color: white;
+}
+
+.auth-buttons button:hover {
   background-color: #D32F2F;
   color: white;
 }
 
 main {
-  padding: 40px 0;
+  padding: 20px 0;
 }
 
-.featured-movies,
-.upcoming-movies {
+.featured-movies {
   margin-bottom: 40px;
 }
 
-.featured-movies h2,
-.upcoming-movies h2 {
+.featured-movies h2 {
   text-align: center;
   margin-bottom: 30px;
   color: #333;
 }
 
-.movie-item {
-  text-align: center;
-  padding: 20px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  transition: transform 0.3s ease;
+.horizontal-movie-scroll {
+  display: flex;
+  width: 100%;
+  overflow-x: hidden;
+  gap: 30px;
+  padding: 20px 50px;
+  box-sizing: border-box;
 }
 
-.movie-item:hover {
-  transform: scale(1.05);
+.movie-card {
+  flex: 0 0 auto;
+  width: 300px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.movie-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.movie-card-inner {
+  display: flex;
+  flex-direction: column;
 }
 
 .movie-poster {
-  max-width: 200px;
-  height: 300px;
+  width: 100%;
+  height: 400px;
   object-fit: cover;
-  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.movie-card:hover .movie-poster {
+  transform: scale(1.05);
+}
+
+.movie-details {
+  padding: 20px;
+}
+
+.movie-details h3 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  color: #333;
+}
+
+.movie-details p {
+  color: #666;
   margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.movie-rating {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.book-ticket-btn {
+  background-color: #D32F2F;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.book-ticket-btn:hover {
+  background-color: #B71C1C;
 }
 
 footer {
   background-color: #f5f5f5;
   padding: 20px 0;
   text-align: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .homepage-header {
+    padding: 15px 20px;
+  }
+
+  .header-nav {
+    gap: 15px;
+  }
+
+  .horizontal-movie-scroll {
+    padding: 20px;
+  }
+
+  .movie-card {
+    width: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .homepage-header {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header-nav,
+  .auth-buttons {
+    margin-top: 15px;
+  }
+
+  .horizontal-movie-scroll {
+    gap: 20px;
+  }
+
+  .movie-card {
+    width: 200px;
+  }
 }
 
 /* PrimeReact Carousel Overrides */
