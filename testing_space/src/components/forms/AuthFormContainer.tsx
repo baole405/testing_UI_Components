@@ -1,13 +1,16 @@
 import React from "react";
-import { Toast} from
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
+type AuthFormContainerProps = {
+  children?: React.ReactNode;
+};
 
-const AuthFormContainer: React.FC = () => {
-  return (
+const AuthFormContainer: React.FC<AuthFormContainerProps> = ({children}) => ( 
     <div>
-      <h1>Authentication Form</h1>
-      {/* Add your form components here */}
+      {children}
+      <ToastContainer/>
     </div>
   );
-};
+
 export default AuthFormContainer;
