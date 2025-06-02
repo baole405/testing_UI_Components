@@ -2,11 +2,8 @@ import React, { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useSpring, animated } from 'react-spring';
-import logo from '../public/logo.png';
-import mov1 from '../public/mov1.jpg';
-import mov2 from '../public/mov2.jpg';
-import mov3 from '../public/mov3.jpg';
+import './Homepage.css';
+import logo from '/logo.png';
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -17,22 +14,36 @@ const movies = [
     id: 1,
     title: 'Phim Hành Động',
     description: 'Trải nghiệm những pha hành động đỉnh cao',
-    poster: mov1,
+    poster: '/mov1.jpg',
     rating: 8.8
   },
   {
     id: 2,
     title: 'Phim Tình Cảm',
     description: 'Câu chuyện tình yêu đầy cảm động',
-    poster: mov2,
+    poster: '/mov2.jpg',
     rating: 9.0
   },
   {
     id: 3,
     title: 'Phim Khoa Học Viễn Tưởng',
     description: 'Khám phá thế giới ngoài hành tinh',
-    poster: mov3,
+    poster: '/mov3.jpg',
     rating: 8.6
+  },
+  {
+    id: 4,
+    title: 'Phim Kinh Dị',
+    description: 'Những giây phút rùng rợn khó quên',
+    poster: '/mov4.jpg',
+    rating: 8.5
+  },
+  {
+    id: 5,
+    title: 'Phim Hài',
+    description: 'Cười không ngừng với những tình huống hài hước',
+    poster: '/mov5.jpg',
+    rating: 8.7
   }
 ];
 
@@ -42,41 +53,99 @@ const infiniteMovies = [...movies, ...movies, ...movies];
 const Homepage: React.FC = () => {
   const navigate = useNavigate();
   const horizontalScrollRef = useRef<HTMLDivElement>(null);
-
-  // React Spring animation for second movie list
-  const springProps = useSpring({
-    from: { transform: 'translateX(0%)' },
-    to: { transform: 'translateX(-50%)' },
-    config: { duration: 10000 },
-    reset: true,
-    loop: true
-  });
+  const backgroundShapesRef = useRef<HTMLDivElement>(null);
+  const backgroundShapeRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   useEffect(() => {
     // Horizontal ScrollTrigger for movie list
     if (horizontalScrollRef.current) {
-      const scrollTriggerInstance = gsap.to(horizontalScrollRef.current, {
-        x: () => -(horizontalScrollRef.current!.scrollWidth / 3),
+      gsap.to(horizontalScrollRef.current, {
+        x: () => -(horizontalScrollRef.current!.scrollWidth - window.innerWidth),
         ease: "none",
-        repeat: -1,
-        duration: 10,
-        paused: true,
         scrollTrigger: {
           trigger: horizontalScrollRef.current,
-          start: "top center",
-          end: "bottom top",
-          onEnter: () => scrollTriggerInstance.play(),
-          onLeave: () => scrollTriggerInstance.pause(),
-          onEnterBack: () => scrollTriggerInstance.play(),
-          onLeaveBack: () => scrollTriggerInstance.pause()
+          pin: true,
+          scrub: 1,
+          snap: 1 / (infiniteMovies.length - 1),
+          end: () => `+=${horizontalScrollRef.current!.offsetWidth}`
         }
       });
+    }
 
-      return () => {
-        scrollTriggerInstance.kill();
-      };
+    // Animate movie cards
+    const movieRefs = useRef<Array<HTMLDivElement | null>>(
+      new Array(infiniteMovies.length).fill(null)
+    );
+
+    movieRefs.current.forEach((movieRef) => {
+      if (movieRef) {
+        gsap.fromTo(
+          movieRef,
+          { opacity: 0, scale: 0.8 },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.8,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: movieRef,
+              start: 'center 80%',
+              toggleActions: 'play none none reverse'
+            }
+          }
+        );
+      }
+    });
+
+    // Dynamic Background Animation
+    if (backgroundShapesRef.current) {
+      const shapes = backgroundShapeRefs.current.filter(Boolean);
+      
+      // Create random movement for background shapes
+      shapes.forEach((shape) => {
+        if (shape) {
+          gsap.to(shape, {
+            x: () => gsap.utils.random(-100, 100),
+            y: () => gsap.utils.random(-100, 100),
+            duration: () => gsap.utils.random(5, 10),
+            ease: 'power1.inOut',
+            repeat: -1,
+            yoyo: true
+          });
+        }
+      });
     }
   }, []);
+
+  // Create background shapes
+  const createBackgroundShapes = () => {
+    const shapeCount = 5; // Number of moving background shapes
+    const shapes = [];
+
+    for (let i = 0; i < shapeCount; i++) {
+      const size = gsap.utils.random(200, 500);
+      const left = gsap.utils.random(0, window.innerWidth);
+      const top = gsap.utils.random(0, window.innerHeight);
+
+      shapes.push(
+        <div 
+          key={i}
+          ref={(el) => {
+            backgroundShapeRefs.current[i] = el;
+          }}
+          className="background-shape"
+          style={{
+            width: `${size}px`,
+            height: `${size}px`,
+            left: `${left}px`,
+            top: `${top}px`
+          }}
+        />
+      );
+    }
+
+    return shapes;
+  };
 
   const handleLogin = () => {
     navigate('/login');
@@ -87,73 +156,54 @@ const Homepage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="sticky top-0 z-50 bg-white shadow-md">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <img 
-              src={logo} 
-              alt="F Cinema Logo" 
-              className="w-16 h-16 mr-4" 
-            />
-            <span className="text-2xl font-bold text-primary">F CINEMA</span>
-          </div>
-          
-          <nav className="flex space-x-6">
-            {['Lịch Chiếu', 'Phim', 'Rạp', 'Giá Vé'].map((item) => (
-              <button 
-                key={item} 
-                className="text-gray-700 hover:text-primary transition-colors"
-              >
-                {item}
-              </button>
-            ))}
-          </nav>
-          
-          <div className="flex space-x-4">
-            <button 
-              onClick={handleLogin} 
-              className="px-4 py-2 border border-primary text-primary rounded hover:bg-primary hover:text-white transition-colors"
-            >
-              Đăng Nhập
-            </button>
-            <button 
-              onClick={handleRegister} 
-              className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary transition-colors"
-            >
-              Đăng Ký
-            </button>
-          </div>
+    <div className="homepage">
+      {/* Dynamic Background Shapes */}
+      <div ref={backgroundShapesRef} className="background-shapes">
+        {createBackgroundShapes()}
+      </div>
+
+      <header className="homepage-header">
+        <div className="logo-container">
+          <img src={logo} alt="F Cinema Logo" className="logo-image" />
+          <span className="logo-text">F CINEMA</span>
+        </div>
+        <nav className="header-nav">
+          <button>Lịch Chiếu</button>
+          <button>Phim</button>
+          <button>Rạp</button>
+          <button>Giá Vé</button>
+        </nav>
+        <div className="auth-buttons">
+          <button onClick={handleLogin}>Đăng Nhập</button>
+          <button onClick={handleRegister}>Đăng Ký</button>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
-            Phim Nổi Bật (GSAP Infinite Scroll)
-          </h2>
+      <main>
+        <section className="featured-movies">
+          <h2>Phim Nổi Bật</h2>
           <div 
             ref={horizontalScrollRef} 
-            className="flex space-x-8 overflow-hidden"
+            className="horizontal-movie-scroll"
           >
             {infiniteMovies.map((movie, index) => (
               <div 
                 key={`${movie.id}-${index}`} 
-                className="flex-shrink-0 w-72 bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:-translate-y-2"
+                className="movie-card"
               >
-                <img 
-                  src={movie.poster} 
-                  alt={movie.title} 
-                  className="w-full h-96 object-cover" 
-                />
-                <div className="p-4">
-                  <h3 className="text-xl font-semibold mb-2">{movie.title}</h3>
-                  <p className="text-gray-600 mb-4">{movie.description}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-700">Rating: {movie.rating}</span>
-                    <button className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary">
-                      Đặt Vé
-                    </button>
+                <div className="movie-card-inner">
+                  <img 
+                    src={movie.poster} 
+                    alt={movie.title} 
+                    className="movie-poster" 
+                  />
+                  <div className="movie-details">
+                    <h3>{movie.title}</h3>
+                    <p>{movie.description}</p>
+                    <div className="movie-rating">
+                      <span>Rating: {movie.rating}</span>
+                      <button className="book-ticket-btn">Đặt Vé</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -161,49 +211,33 @@ const Homepage: React.FC = () => {
           </div>
         </section>
 
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
-            Phim Mới (React Spring Infinite Scroll)
-          </h2>
-          <animated.div 
-            style={{
-              ...springProps,
-              display: 'flex',
-              width: '200%',
-              gap: '30px',
-              padding: '20px 0',
-              boxSizing: 'border-box'
-            }}
-          >
-            {infiniteMovies.map((movie, index) => (
-              <div 
-                key={`spring-${movie.id}-${index}`} 
-                className="flex-shrink-0 w-72 bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:-translate-y-2"
-              >
+        <section className="movie-list">
+          <h2>Danh Sách Phim</h2>
+          <div className="movie-grid">
+            {movies.map((movie) => (
+              <div key={movie.id} className="movie-list-item">
                 <img 
                   src={movie.poster} 
                   alt={movie.title} 
-                  className="w-full h-96 object-cover" 
+                  className="movie-list-poster" 
                 />
-                <div className="p-4">
-                  <h3 className="text-xl font-semibold mb-2">{movie.title}</h3>
-                  <p className="text-gray-600 mb-4">{movie.description}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-700">Rating: {movie.rating}</span>
-                    <button className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary">
-                      Đặt Vé
-                    </button>
+                <div className="movie-list-details">
+                  <h3>{movie.title}</h3>
+                  <p>{movie.description}</p>
+                  <div className="movie-list-rating">
+                    <span>Rating: {movie.rating}</span>
+                    <button className="book-ticket-btn">Xem Chi Tiết</button>
                   </div>
                 </div>
               </div>
             ))}
-          </animated.div>
+          </div>
         </section>
       </main>
 
-      <footer className="bg-gray-200 py-6">
-        <div className="container mx-auto text-center">
-          <p className="text-gray-700">© 2024 F Cinema. All rights reserved.</p>
+      <footer>
+        <div className="footer-content">
+          <div>© 2024 F Cinema. All rights reserved.</div>
         </div>
       </footer>
     </div>
